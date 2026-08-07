@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model State {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  uf        String    @unique @db.VarChar(2)
+  deletedAt DateTime?
+
+  cities City[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model City {
+  id        Int       @id @default(autoincrement())
+  name      String
+  stateId   Int
+  deletedAt DateTime?
+
+  state State @relation(fields: [stateId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, stateId])
+}
