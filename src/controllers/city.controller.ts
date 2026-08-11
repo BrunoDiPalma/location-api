@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
-import { createCity, getCities } from "../services/city.service.js";
+import {
+  createCity,
+  getCities,
+  getCityById,
+} from "../services/city.service.js";
 
 export async function createCityController(req: Request, res: Response) {
   try {
@@ -35,6 +39,40 @@ export async function getCitiesController(req: Request, res: Response) {
   }
 
   return res.status(500).json({
-    message: "Erro ao listar cidades."
-  })
+    message: "Erro ao listar cidades.",
+  });
+}
+
+export async function getCityByIdController(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+
+    if (typeof id !== "string") {
+      return res.status(400).json({
+        message: "ID inválido!",
+      });
+    }
+
+    const cityId = Number(id);
+
+    if (Number.isNaN(cityId)) {
+      return res.status(400).json({
+        message: "ID inválido!",
+      });
+    }
+
+    const city = await getCityById(cityId);
+
+    return res.status(200).json(city);
+  } catch (error) {
+    if (error instanceof Error) {
+      return res.status(400).json({
+        message: error.message,
+      });
+    }
+  }
+
+  return res.status(500).json({
+    message: "Erro ao buscar cidade.",
+  });
 }

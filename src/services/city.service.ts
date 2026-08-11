@@ -47,7 +47,25 @@ export async function getCities() {
       state: true,
     },
     orderBy: {
-        name: "asc"
-    }
+      name: "asc",
+    },
   });
+}
+
+export async function getCityById(id: number) {
+  const city = await prisma.city.findUnique({
+    where: {
+      id,
+      deletedAt: null,
+    },
+    include: {
+      state: true,
+    },
+  });
+
+  if (!city) {
+    throw new Error("Cidade não encontrada.");
+  }
+
+  return city;
 }
