@@ -37,3 +37,14 @@ export async function createState(name: string, uf: string) {
     },
   });
 }
+
+export async function getStates() {
+    return prisma.state.findMany({
+    where: {
+        deletedAt: null
+    },
+    orderBy: {
+        name: "asc",
+    }
+    })
+}

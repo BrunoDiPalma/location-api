@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createState } from "../services/state.service.js";
+import { createState, getStates } from "../services/state.service.js";  
 
 export async function createStateController(req: Request, res: Response) {
   try {
@@ -16,6 +16,23 @@ export async function createStateController(req: Request, res: Response) {
     }
     return res.status(500).json({
       message: "Erro ao criar estado.",
+    });
+  }
+}
+
+export async function getStatesController(req: Request, res: Response) {
+  try {
+    const states = await getStates();
+
+    return res.status(200).json(states);
+  } catch (error) {
+    if (error instanceof Error) {
+      return res.status(400).json({
+        message: error.message,
+      });
+    }
+    return res.status(500).json({
+      message: "Erro ao listar estados",
     });
   }
 }
