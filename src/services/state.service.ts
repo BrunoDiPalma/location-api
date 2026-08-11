@@ -14,7 +14,10 @@ export async function createState(name: string, uf: string) {
 
   const existingState = await prisma.state.findFirst({
     where: {
-      OR: [{ uf: normalizedUf }, { name: normalizedName }],
+      OR: [
+        { uf: normalizedUf },
+        { name: { equals: normalizedName, mode: "insensitive" } },
+      ],
       deletedAt: null,
     },
   });
@@ -88,7 +91,7 @@ export async function updateState(id: number, name: string, uf: string) {
 
   const existingState = await prisma.state.findFirst({
     where: {
-      OR: [{ uf: normalizedUf }, { name: normalizedName }],
+      OR: [{ uf: normalizedUf }, { name: { equals: normalizedName, mode: "insensitive"} }],
       deletedAt: null,
       NOT: {
         id,
@@ -133,16 +136,18 @@ export async function deleteState(id: number) {
     },
   });
 
-  if(cities){
-    throw new Error("Não é possível excluir o estado, pois, existem cidades cadastradas.")
+  if (cities) {
+    throw new Error(
+      "Não é possível excluir o estado, pois, existem cidades cadastradas.",
+    );
   }
 
   return prisma.state.update({
     where: {
-        id,
+      id,
     },
     data: {
-        deletedAt: new Date()
-    }
-  })
+      deletedAt: new Date(),
+    },
+  });
 }

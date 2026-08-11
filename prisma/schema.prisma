@@ -9,8 +9,8 @@ datasource db {
 
 model State {
   id        Int       @id @default(autoincrement())
-  name      String    @unique
-  uf        String    @unique @db.VarChar(2)
+  name      String
+  uf        String    @db.VarChar(2)
   deletedAt DateTime?
 
   cities City[]
@@ -29,6 +29,4 @@ model City {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@unique([name, stateId])
 }

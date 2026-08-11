@@ -20,7 +20,7 @@ export async function createCity(name: string, stateId: number) {
 
   const existingCity = await prisma.city.findFirst({
     where: {
-      name: normalizedName,
+      name: { equals: normalizedName, mode: "insensitive" },
       stateId,
       deletedAt: null,
     },
@@ -107,71 +107,48 @@ export async function searchCities(uf?: string, name?: string) {
   });
 }
 
-export async function updateCity(id: number, name: string, stateId: number){
-  if(!name || !stateId){
-    throw new Error("Nome e Estado são obrigatórios!")
+export async function updateCity(id: number, name: string, stateId: number) {
+  if (!name || !stateId) {
+    throw new Error("Nome e Estado são obrigatórios!");
   }
 
-  const normalizedName = name.trim()
+  const normalizedName = name.trim();
 
   const city = await prisma.city.findUnique({
     where: {
-      id, 
-      deletedAt: null
-    }
-  })
+      id,
+      deletedAt: null,
+    },
+  });
 
-  if(!city){
-    throw new Error("Cidade não encontrada")
+  if (!city) {
+    throw new Error("Cidade não encontrada");
   }
 
   const state = await prisma.state.findUnique({
     where: {
       id: stateId,
-      deletedAt: null
-    }
-  })
+      deletedAt: null,
+    },
+  });
 
-  if(!state){
-    throw new Error("Estado não encontrado")
+  if (!state) {
+    throw new Error("Estado não encontrado");
   }
 
   const existingCity = await prisma.city.findFirst({
     where: {
-      name: normalizedName,
+      name: { equals: normalizedName, mode: "insensitive" },
       stateId,
       deletedAt: null,
       NOT: {
-        id
-      }
-    }
-  })
+        id,
+      },
+    },
+  });
 
-  if(existingCity){
-    throw new Error("Já existe uma cidade com esse nome neste estado.")
-  }
-
-  return prisma.city.update({
-    where: {
-      id,
-    }, 
-    data: {
-      name: normalizedName,
-      stateId
-    }
-  })
-}
-
-export async function deleteCity(id: number){
-  const city = await prisma.city.findFirst({
-    where: {
-      id,
-      deletedAt: null
-    }
-  })
-
-  if(!city){
-    throw new Error("Cidade não encontrada")
+  if (existingCity) {
+    throw new Error("Já existe uma cidade com esse nome neste estado.");
   }
 
   return prisma.city.update({
@@ -179,7 +156,30 @@ export async function deleteCity(id: number){
       id,
     },
     data: {
-      deletedAt: new Date()
-    }
-  })
+      name: normalizedName,
+      stateId,
+    },
+  });
+}
+
+export async function deleteCity(id: number) {
+  const city = await prisma.city.findFirst({
+    where: {
+      id,
+      deletedAt: null,
+    },
+  });
+
+  if (!city) {
+    throw new Error("Cidade não encontrada");
+  }
+
+  return prisma.city.update({
+    where: {
+      id,
+    },
+    data: {
+      deletedAt: new Date(),
+    },
+  });
 }
