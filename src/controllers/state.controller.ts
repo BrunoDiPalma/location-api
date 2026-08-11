@@ -4,6 +4,7 @@ import {
   getStates,
   getStateByUf,
   updateState,
+  deleteState,
 } from "../services/state.service.js";
 
 export async function createStateController(req: Request, res: Response) {
@@ -89,7 +90,6 @@ export async function updateStateController(req: Request, res: Response) {
 
     const state = await updateState(stateId, name, uf);
     return res.status(200).json(state);
-    
   } catch (error) {
     if (error instanceof Error) {
       return res.status(400).json({
@@ -100,5 +100,41 @@ export async function updateStateController(req: Request, res: Response) {
 
   return res.status(500).json({
     message: "Erro ao atualizar estado.",
+  });
+}
+
+export async function deleteStateController(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+
+    if (typeof id !== "string") {
+      return res.status(400).json({
+        message: "ID inválido!",
+      });
+    }
+
+    const stateId = Number(id);
+
+    if (Number.isNaN(stateId)) {
+      return res.status(400).json({
+        message: "ID inválido!",
+      });
+    }
+
+    await deleteState(stateId);
+
+    return res.status(200).json({
+      message: "Estado excluído com sucesso",
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      return res.status(409).json({
+        message: error.message,
+      });
+    }
+  }
+
+  return res.status(500).json({
+    message: "Erro ao excluir estado.",
   });
 }

@@ -113,3 +113,36 @@ export async function updateState(id: number, name: string, uf: string) {
     },
   });
 }
+
+export async function deleteState(id: number) {
+  const state = await prisma.state.findFirst({
+    where: {
+      id,
+      deletedAt: null,
+    },
+  });
+
+  if (!state) {
+    throw new Error("Estado não encontrado.");
+  }
+
+  const cities = await prisma.city.findFirst({
+    where: {
+      stateId: id,
+      deletedAt: null,
+    },
+  });
+
+  if(cities){
+    throw new Error("Não é possível excluir o estado, pois, existem cidades cadastradas.")
+  }
+
+  return prisma.state.update({
+    where: {
+        id,
+    },
+    data: {
+        deletedAt: new Date()
+    }
+  })
+}
