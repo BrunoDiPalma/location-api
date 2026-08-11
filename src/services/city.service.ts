@@ -69,3 +69,40 @@ export async function getCityById(id: number) {
 
   return city;
 }
+
+export async function searchCities(uf?: string, name?: string) {
+  const normalizedUf = uf?.trim().toUpperCase();
+  const normalizedName = name?.trim();
+
+  if (normalizedUf && normalizedUf.length !== 2) {
+    throw new Error("A UF deve possuir exatamente 2 caracteres.");
+  }
+
+  return prisma.city.findMany({
+    where: {
+      deletedAt: null,
+
+      ...(normalizedName && {
+        name: {
+          contains: normalizedName,
+          mode: "insensitive",
+        },
+      }),
+
+      ...(normalizedUf && {
+        state: {
+          uf: normalizedUf,
+          deletedAt: null,
+        },
+      }),
+    },
+
+    include: {
+      state: true,
+    },
+
+    orderBy: {
+      name: "asc",
+    },
+  });
+}

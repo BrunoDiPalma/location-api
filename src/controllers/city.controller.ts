@@ -3,6 +3,7 @@ import {
   createCity,
   getCities,
   getCityById,
+  searchCities,
 } from "../services/city.service.js";
 
 export async function createCityController(req: Request, res: Response) {
@@ -27,6 +28,18 @@ export async function createCityController(req: Request, res: Response) {
 
 export async function getCitiesController(req: Request, res: Response) {
   try {
+    const { uf, name } = req.query;
+
+    const normalizedUf = typeof uf === "string" ? uf : undefined;
+
+    const normalizedName = typeof name === "string" ? name : undefined;
+
+    if (normalizedUf || normalizedName) {
+      const cities = await searchCities(normalizedUf, normalizedName);
+
+      return res.status(200).json(cities);
+    }
+
     const cities = await getCities();
 
     return res.status(200).json(cities);
