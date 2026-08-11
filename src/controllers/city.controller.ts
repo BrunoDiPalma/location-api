@@ -1,9 +1,11 @@
 import { Request, Response } from "express";
 import {
   createCity,
+  deleteCity,
   getCities,
   getCityById,
   searchCities,
+  updateCity,
 } from "../services/city.service.js";
 
 export async function createCityController(req: Request, res: Response) {
@@ -88,4 +90,78 @@ export async function getCityByIdController(req: Request, res: Response) {
   return res.status(500).json({
     message: "Erro ao buscar cidade.",
   });
+}
+
+export async function updateCityController(req: Request, res: Response){
+    try {
+        const { id } = req.params
+        const { name, stateId } = req.body
+
+        if(typeof id !== "string"){
+            return res.status(400).json({
+                message: "ID inválido!"
+            })
+        }
+
+        const cityId = Number(id)
+
+        if(Number.isNaN(cityId)){
+            return res.status(400).json({
+                message: "ID inválido!"
+            })
+        }
+
+        const city = await updateCity(
+            cityId,
+            name,
+            stateId
+        )
+
+        return res.status(200).json(city)
+        
+    } catch (error) {
+        if(error instanceof Error){
+            return res.status(400).json({
+                message: error.message
+            })
+        }
+    }
+
+    return res.status(500).json({
+        message: "Erro ao atualizar cidade."
+    })
+}
+
+export async function deleteCityController(req: Request, res: Response){
+    try {
+        const { id } = req.params
+
+        if(typeof id !== "string"){
+            return res.status(400).json({
+                message: "ID inválido"
+            })
+        }
+
+        const cityId = Number(id)
+
+        if(Number.isNaN(cityId)){
+            return res.status(400).json({
+                message: "ID inválido!"
+            })
+        }
+
+        await deleteCity(cityId)
+
+        return res.status(204).send()
+    } catch (error) {
+        if(error instanceof Error){
+            return res.status(400).json({
+                message: error.message
+            })
+        }
+    }
+
+    return res.status(500).json({
+        message: "Erro ao excluir cidade."
+    })
 }
